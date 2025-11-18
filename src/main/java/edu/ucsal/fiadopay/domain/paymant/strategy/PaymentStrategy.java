@@ -8,6 +8,5 @@ import org.springframework.stereotype.Component;
 
 
 public interface PaymentStrategy {
-    MethodPayment getType();
     Payment process(PaymentRequest request, Merchant merchant, String IdemKey);
 }

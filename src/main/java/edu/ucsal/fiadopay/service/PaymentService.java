@@ -2,18 +2,17 @@ package edu.ucsal.fiadopay.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.ucsal.fiadopay.domain.paymant.Status;
 import edu.ucsal.fiadopay.domain.paymant.dto.PaymentRequest;
 import edu.ucsal.fiadopay.domain.paymant.dto.PaymentResponse;
 import edu.ucsal.fiadopay.domain.merchant.Merchant;
 import edu.ucsal.fiadopay.domain.paymant.Payment;
 import edu.ucsal.fiadopay.domain.WebhookDelivery.WebhookDelivery;
-import edu.ucsal.fiadopay.domain.paymant.factory.PaymentFactory;
 import edu.ucsal.fiadopay.domain.paymant.factory.PaymentFactoryImpl;
 import edu.ucsal.fiadopay.domain.paymant.strategy.PaymentStrategy;
 import edu.ucsal.fiadopay.repo.MerchantRepository;
 import edu.ucsal.fiadopay.repo.PaymentRepository;
 import edu.ucsal.fiadopay.repo.WebhookDeliveryRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -21,8 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -63,47 +60,55 @@ public class PaymentService {
         }
         PaymentStrategy strategy = paymentFactory.getStrategy(req.method());
         Payment payment = strategy.process(req, merchant, idemKey);
-        payments.save(payment);
+        CompletableFuture.runAsync(() -> processAndWebhook(payment.getId()));
+        return toResponse(payment);
+    }
 
-//        CompletableFuture.runAsync(() -> processAndWebhook(payment.getId()));
+    public PaymentResponse getPayment(String id, Merchant merchant) {
+        if (merchant == null || merchant.getId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Merchant information is missing");
+        }
+
+        var payment = payments.findById(id)
+                .filter(p -> p.belongsToMerchant(merchant.getId()))
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        "Payment does not exist or does not belong to this merchant."
+                ));
 
         return toResponse(payment);
     }
 
-    public PaymentResponse getPayment(String id) {
-        return toResponse(payments.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
+    @Transactional
+    public Map<String, Object> refund(Merchant merchant, String paymentId) {
+        var p = payments.findById(paymentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (!p.belongsToMerchant(merchant.getId())){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+        if (p.getStatus() == Status.REFUNDED) {
+            return Map.of("id", "ref_" + UUID.randomUUID(), "status", "ALREADY_REFUNDED");
+        }
+
+        return Map.of("id", "ref_" + UUID.randomUUID(), "status", "PENDING");
     }
-//
-//    public Map<String, Object> refund(Merchant merchant, String paymentId) {
-//
-//        var p = payments.findById(paymentId)
-//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-//        if (!merchant.getId().equals(p.getMerchantId())) {
-//            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-//        }
-//        p.setStatus(Payment.Status.REFUNDED);
-//        p.setUpdatedAt(Instant.now());
-//        payments.save(p);
-//        sendWebhook(p);
-//        return Map.of("id", "ref_" + UUID.randomUUID(), "status", "PENDING");
-//    }
-//
-//    private void processAndWebhook(String paymentId) {
-//        try {
-//            Thread.sleep(delay);
-//        } catch (InterruptedException ignored) {
-//        }
-//        var p = payments.findById(paymentId).orElse(null);
-//        if (p == null) return;
-//
-//        var approved = Math.random() > failRate;
-//        p.setStatus(approved ? Payment.Status.APPROVED : Payment.Status.DECLINED);
-//        p.setUpdatedAt(Instant.now());
-//        payments.save(p);
-//
-//        sendWebhook(p);
-//    }
+
+    private void processAndWebhook(String paymentId) {
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException ignored) {
+        }
+        var p = payments.findById(paymentId).orElse(null);
+        if (p == null) return;
+
+        var approved = Math.random() > failRate;
+        p.setStatus(approved ? Status.APPROVED : Status.DECLINED);
+        p.setUpdatedAt(Instant.now());
+        payments.save(p);
+
+        sendWebhook(p);
+    }
 
     private void sendWebhook(Payment p) {
         var merchant = merchants.findById(p.getMerchant().getId()).orElse(null);
@@ -188,6 +193,8 @@ public class PaymentService {
             return "";
         }
     }
+
+
 
     private PaymentResponse toResponse(Payment payment) {
 

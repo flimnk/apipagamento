@@ -5,6 +5,7 @@ import edu.ucsal.fiadopay.domain.paymant.strategy.PaymentStrategy;
 import org.springframework.stereotype.Component;
 
 
-public interface PaymentFactory {
+public interface PaymentFactory  {
+
     public PaymentStrategy  getStrategy(MethodPayment type);
 }

@@ -2,6 +2,7 @@ package edu.ucsal.fiadopay.domain.paymant.strategy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.ucsal.fiadopay.controller.annotations.PaymentMethod;
 import edu.ucsal.fiadopay.domain.merchant.Merchant;
 import edu.ucsal.fiadopay.domain.paymant.MethodPayment;
 import edu.ucsal.fiadopay.domain.paymant.Payment;
@@ -15,16 +16,15 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.UUID;
+
 @AllArgsConstructor
 @Component
+@PaymentMethod(type = MethodPayment.CARD)
 public class CardPaymentStrategy implements PaymentStrategy {
-
+    private final MethodPayment type;
     private final ObjectMapper mapper;
 
-    @Override
-    public MethodPayment getType() {
-        return MethodPayment.CARD;
-    }
+
 
     @Override
     public Payment process(PaymentRequest req, Merchant merchant, String idemKey) {
@@ -50,21 +50,22 @@ public class CardPaymentStrategy implements PaymentStrategy {
                 installments,
                 baseAmount,
                 interestAmount,
-                installmentAmount
+                installmentAmount,
+                finalAmount
         );
 
         // 4. Criar o pagamento
         Payment payment = new Payment();
         payment.setId("pay_" + UUID.randomUUID());
         payment.setMethod(MethodPayment.CARD);
-        payment.setAmount(finalAmount);
+        payment.setAmount(baseAmount);
         payment.setCurrency(req.currency());
         payment.setMerchant(merchant);
         payment.setIdempotencyKey(idemKey);
         payment.setStatus(Status.PENDING);
         payment.setCreatedAt(Instant.now());
         payment.setUpdatedAt(Instant.now());
-
+        payment.setMetadataOrderId(req.metadataOrderId());
         try {
             payment.setDetailsJson(mapper.writeValueAsString(detailsToSave));
         } catch (JsonProcessingException e) {

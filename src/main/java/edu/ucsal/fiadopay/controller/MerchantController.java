@@ -1,6 +1,7 @@
 package edu.ucsal.fiadopay.controller;
 
 import edu.ucsal.fiadopay.domain.merchant.Merchant;
+import edu.ucsal.fiadopay.domain.merchant.dto.BasicTokenRequest;
 import edu.ucsal.fiadopay.domain.merchant.dto.MerchantCreate;
 import edu.ucsal.fiadopay.domain.merchant.dto.MerchantRensponse;
 import edu.ucsal.fiadopay.service.MerchantService;
@@ -23,13 +24,10 @@ public class MerchantController {
         return  ResponseEntity.status(HttpStatus.CREATED).body(merchantsService.create(dto));
   }
     @PostMapping("/basic-token")
-    public ResponseEntity<?> generateBasicToken(@RequestParam String clientId,
-                                                @RequestParam String clientSecret) {
+    public ResponseEntity<?> generateBasicToken(@Valid @RequestBody  BasicTokenRequest dto) {
+        merchantsService.findAndVerifyByClientId(dto.clientId(), dto.clientSecret());
 
-
-        merchantsService.findAndVerifyByClientId(clientId, clientSecret);
-
-        String token = merchantsService.generateBasicToken(clientId, clientSecret);
+        String token = merchantsService.generateBasicToken(dto.clientId(), dto.clientSecret());
 
         return ResponseEntity.ok().body(Map.of(
                 "authorization_header", token,

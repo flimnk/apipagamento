@@ -11,9 +11,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class CardDetails {
 
-    private int installments;
-   private BigDecimal baseAmount;
-    private BigDecimal interestAmount;
-    private BigDecimal installmentAmount;
-
+    private int installments;            // parcelas
+    private BigDecimal baseAmount;       // valor original
+    private BigDecimal interestAmount;   // total de juros
+    private BigDecimal installmentAmount; // valor de cada parcela
+    private BigDecimal totalWithInterest; // baseAmount + interestAmount
 }

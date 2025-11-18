@@ -29,8 +29,8 @@ public class PaymentController {
   }
 
   @GetMapping("/payments/{id}")
-  public PaymentResponse get(@PathVariable String id) {
-    return service.getPayment(id);
+  public PaymentResponse get( @AuthenticationPrincipal Merchant merchant, @PathVariable String id) {
+    return service.getPayment(id, merchant);
   }
 
 //  @PostMapping("/refunds")

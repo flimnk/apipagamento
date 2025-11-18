@@ -31,6 +31,7 @@ public class MerchantService {
         if (merchantRepository.existsByName(dto.name()) || merchantRepository.existsByWebhookUrl(dto.webhookUrl())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Merchant name or  webHook   already exists");
         }
+        if(user.getMerchant() != null) throw new   ResponseStatusException(HttpStatus.CONFLICT, "User already has merchant");
 
         var m = Merchant.builder()
                 .interest(dto.interest())
@@ -41,16 +42,23 @@ public class MerchantService {
                 .clientSecret("sec_"+UUID.randomUUID().toString().replace("-", ""))
                 .status(Status.ACTIVE)
                 .build();
+        var response = new MerchantRensponse(m);
+        m.setClientSecret(passwordEncoder.encode(m.getClientSecret()));
         user.setMerchant(m);
         merchantRepository.save(m);
-        return  new MerchantRensponse(m);
+        return  response;
     }
 
 
 
     public Merchant findAndVerifyByClientId(String clientId, String clientSecret) {
+
+        System.out.println(clientId);
         var merchant = merchantRepository.findByClientId(clientId)
                 .orElseThrow(() -> new RuntimeException("Merchant not found"));
+
+
+        System.out.println(merchant.getClientId());
         if (!passwordEncoder.matches(clientSecret, merchant.getClientSecret())) {
             throw new RuntimeException("Invalid secret key");
         }

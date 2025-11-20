@@ -7,5 +7,5 @@ import org.springframework.stereotype.Component;
 
 public interface PaymentFactory  {
 
-    public PaymentStrategy  getStrategy(MethodPayment type);
+    public PaymentStrategy  getStrategy(String type);
 }

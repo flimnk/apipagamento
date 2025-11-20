@@ -49,16 +49,15 @@ public class MerchantService {
         return  response;
     }
 
+    public  Merchant findById(Long id){
+        return merchantRepository.findById(id)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.BAD_REQUEST,"Merchant not found"));
+    }
 
 
     public Merchant findAndVerifyByClientId(String clientId, String clientSecret) {
-
-        System.out.println(clientId);
         var merchant = merchantRepository.findByClientId(clientId)
-                .orElseThrow(() -> new RuntimeException("Merchant not found"));
-
-
-        System.out.println(merchant.getClientId());
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.BAD_REQUEST,"Merchant not found"));
         if (!passwordEncoder.matches(clientSecret, merchant.getClientSecret())) {
             throw new RuntimeException("Invalid secret key");
         }

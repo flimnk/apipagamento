@@ -1,6 +1,6 @@
-package edu.ucsal.fiadopay.controller.annotations;
+package edu.ucsal.fiadopay.controller.annotations.paymentMethod;
 
-import edu.ucsal.fiadopay.domain.paymant.MethodPayment;
+import org.springframework.stereotype.Component;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,7 +9,8 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
+@Component
 public @interface PaymentMethod {
-    MethodPayment type();
+   String type();
 
 }

@@ -2,7 +2,7 @@ package edu.ucsal.fiadopay.domain.paymant.strategy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.ucsal.fiadopay.controller.annotations.PaymentMethod;
+import edu.ucsal.fiadopay.controller.annotations.paymentMethod.PaymentMethod;
 import edu.ucsal.fiadopay.domain.merchant.Merchant;
 import edu.ucsal.fiadopay.domain.paymant.MethodPayment;
 import edu.ucsal.fiadopay.domain.paymant.Payment;
@@ -19,9 +19,9 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @Component
-@PaymentMethod(type = MethodPayment.CARD)
+@PaymentMethod(type = "CARD")
 public class CardPaymentStrategy implements PaymentStrategy {
-    private final MethodPayment type;
+
     private final ObjectMapper mapper;
 
 

@@ -1,12 +1,11 @@
 package edu.ucsal.fiadopay.infra.filters;
 
-import edu.ucsal.fiadopay.service.TokenService;
+import edu.ucsal.fiadopay.service.securityService.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;

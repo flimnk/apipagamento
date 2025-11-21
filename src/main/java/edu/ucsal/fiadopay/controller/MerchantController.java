@@ -1,10 +1,9 @@
 package edu.ucsal.fiadopay.controller;
 
-import edu.ucsal.fiadopay.domain.merchant.Merchant;
 import edu.ucsal.fiadopay.domain.merchant.dto.BasicTokenRequest;
 import edu.ucsal.fiadopay.domain.merchant.dto.MerchantCreate;
 import edu.ucsal.fiadopay.domain.merchant.dto.MerchantRensponse;
-import edu.ucsal.fiadopay.service.MerchantService;
+import edu.ucsal.fiadopay.service.merchantService.MerchantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

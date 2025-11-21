@@ -1,4 +1,4 @@
-package edu.ucsal.fiadopay.service;
+package edu.ucsal.fiadopay.service.payment;
 
 import edu.ucsal.fiadopay.annotations.idempontent.Idempotent;
 import edu.ucsal.fiadopay.annotations.logged.Logged;
@@ -6,6 +6,7 @@ import edu.ucsal.fiadopay.annotations.logged.Logged;
 import edu.ucsal.fiadopay.annotations.validTransactionWindow.ValidTransactionWindow;
 import edu.ucsal.fiadopay.domain.paymant.PaymentMapper;
 
+import edu.ucsal.fiadopay.domain.paymant.Status;
 import edu.ucsal.fiadopay.domain.paymant.dto.PaymentRequest;
 import edu.ucsal.fiadopay.domain.paymant.dto.PaymentResponse;
 import edu.ucsal.fiadopay.domain.merchant.Merchant;
@@ -14,6 +15,7 @@ import edu.ucsal.fiadopay.domain.WebhookDelivery.WebhookDelivery;
 import edu.ucsal.fiadopay.domain.paymant.factory.PaymentFactoryImpl;
 import edu.ucsal.fiadopay.domain.paymant.strategy.PaymentStrategy;
 import edu.ucsal.fiadopay.repo.PaymentRepository;
+import edu.ucsal.fiadopay.service.merchantService.MerchantService;
 import edu.ucsal.fiadopay.service.webhook.WebhookDeliveryService;
 import edu.ucsal.fiadopay.service.webhook.WebhookEventFactory;
 import edu.ucsal.fiadopay.service.webhook.WebhookSigner;
@@ -26,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 
+import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 import java.util.concurrent.ExecutorService;
@@ -90,29 +94,46 @@ import java.util.concurrent.ExecutorService;
         return PaymentMapper.toResponse(payment);
     }
 
-    public PaymentResponse getPayment(String id, Merchant merchant) {
 
-        if (merchant == null || merchant.getId() == null) {
-            log.error("Merchant inválido na consulta de pagamento id={}", id);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Merchant information is missing");
+        public PaymentResponse getPayment(String id, Merchant merchant) {
+            if (merchant == null || merchant.getId() == null) {
+                log.error("Merchant inválido na consulta de pagamento id={}", id);
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Merchant information is missing"
+                );
+            }
+
+            var payment = payments.findById(id)
+                    .filter(p -> p.belongsToMerchant(merchant.getId()))
+                    .orElseThrow(() -> {
+                        log.warn("Tentativa de acesso não autorizado paymentId={} merchantId={}", id, merchant.getId());
+                        return new ResponseStatusException(
+                                HttpStatus.FORBIDDEN,
+                                "Payment does not exist or does not belong to this merchant."
+                        );
+                    });
+
+            log.debug("Pagamento {} consultado para merchant {}", id, merchant.getId());
+
+            return PaymentMapper.toResponse(payment);
         }
 
-        var payment = payments.findById(id)
-                .filter(p -> p.belongsToMerchant(merchant.getId()))
-                .orElseThrow(() -> {
-                    log.warn("Tentativa de acesso não autorizado paymentId={} merchantId={}", id, merchant.getId());
-                    return new ResponseStatusException(
-                            HttpStatus.FORBIDDEN,
-                            "Payment does not exist or does not belong to this merchant."
-                    );
-                });
 
-        log.debug("Pagamento {} consultado para merchant {}", id, merchant.getId());
+        public Map<String,Object> refund(Merchant merchant, String paymentId){
 
-        return PaymentMapper.toResponse(payment);
-    }
-
-    private void handleWebhook(String paymentId) {
+            var p = payments.findById(paymentId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            if (!merchant.getId().equals(p.getMerchant().getId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+            p.setStatus(Status.REFUNDED);
+            p.setUpdatedAt(Instant.now());
+            payments.save(p);
+            handleWebhook(p.getId());
+            return Map.of("id","ref_"+UUID.randomUUID(),"status","PENDING");
+        }
+        private void handleWebhook(String paymentId) {
 
         log.info("Processando webhook para paymentId={}", paymentId);
 

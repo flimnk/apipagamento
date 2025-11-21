@@ -1,4 +1,4 @@
-package edu.ucsal.fiadopay.service;
+package edu.ucsal.fiadopay.service.payment;
 import edu.ucsal.fiadopay.domain.paymant.Status;
 import edu.ucsal.fiadopay.domain.paymant.Payment;
 import edu.ucsal.fiadopay.repo.PaymentRepository;

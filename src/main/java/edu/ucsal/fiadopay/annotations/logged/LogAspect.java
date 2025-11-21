@@ -1,12 +1,23 @@
 package edu.ucsal.fiadopay.annotations.logged;
 
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+
 @Aspect
 @Component
 @Slf4j
+@Order(1)
 public class LogAspect {
 
     @Around("@annotation(logged)")
     public Object around(ProceedingJoinPoint pjp, Logged logged) throws Throwable {
+
 
         long start = System.currentTimeMillis();
 

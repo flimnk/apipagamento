@@ -1,4 +1,4 @@
-package edu.ucsal.fiadopay.controller.annotations.validTransactionWindow;
+package edu.ucsal.fiadopay.annotations.validTransactionWindow;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

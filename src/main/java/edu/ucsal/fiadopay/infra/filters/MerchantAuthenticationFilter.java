@@ -1,9 +1,8 @@
 package edu.ucsal.fiadopay.infra.filters;
 
 import edu.ucsal.fiadopay.domain.merchant.Merchant;
-import edu.ucsal.fiadopay.infra.Exceptions.MerchantNotFoundException;
 
-import edu.ucsal.fiadopay.service.MerchantService;
+import edu.ucsal.fiadopay.service.merchantService.MerchantService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +11,6 @@ import lombok.AllArgsConstructor;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 

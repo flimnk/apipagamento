@@ -1,4 +1,6 @@
-package edu.ucsal.fiadopay.controller.annotations.idempontent;
+package edu.ucsal.fiadopay.annotations.idempontent;
+
+
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

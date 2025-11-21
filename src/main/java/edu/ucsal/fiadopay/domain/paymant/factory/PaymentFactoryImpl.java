@@ -1,6 +1,6 @@
 package edu.ucsal.fiadopay.domain.paymant.factory;
 
-import edu.ucsal.fiadopay.controller.annotations.paymentMethod.PaymentMethod;
+import edu.ucsal.fiadopay.annotations.paymentMethod.PaymentMethod;
 import edu.ucsal.fiadopay.domain.paymant.strategy.PaymentStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

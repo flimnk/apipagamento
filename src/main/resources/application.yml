@@ -8,6 +8,13 @@ spring:
     username: sa
     password:
 
+
+logging:
+  file:
+    name: app.logs
+  level:
+    root: INFO
+
   jpa:
     hibernate:
       ddl-auto: update

@@ -1,4 +1,4 @@
-package edu.ucsal.fiadopay.controller.annotations.paymentMethod;
+package edu.ucsal.fiadopay.annotations.paymentMethod;
 
 import org.springframework.stereotype.Component;
 

@@ -2,7 +2,7 @@ package edu.ucsal.fiadopay.controller;
 
 import edu.ucsal.fiadopay.domain.user.dto.LoginRequest;
 import edu.ucsal.fiadopay.domain.user.dto.LoginResponse;
-import edu.ucsal.fiadopay.service.AuthService;
+import edu.ucsal.fiadopay.service.securityService.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

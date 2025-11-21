@@ -3,7 +3,7 @@ package edu.ucsal.fiadopay.controller;
 import edu.ucsal.fiadopay.domain.paymant.dto.PaymentRequest;
 import edu.ucsal.fiadopay.domain.paymant.dto.PaymentResponse;
 import edu.ucsal.fiadopay.domain.merchant.Merchant;
-import edu.ucsal.fiadopay.service.PaymentService;
+import edu.ucsal.fiadopay.service.payment.PaymentService;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -33,10 +33,10 @@ public class PaymentController {
     return service.getPayment(id, merchant);
   }
 
-//  @PostMapping("/refunds")
-//  @SecurityRequirement(name = "bearerAuth")
-//  public java.util.Map<String,Object> refund(@AuthenticationPrincipal Merchant merchant,
-//                                   @RequestBody @Valid RefundRequest body) {
-//    return service.refund(merchant, body.paymentId());
-//  }
+  @PostMapping("/refunds")
+  @SecurityRequirement(name = "bearerAuth")
+  public java.util.Map<String,Object> refund(@AuthenticationPrincipal Merchant merchant,
+                                   @RequestBody @Valid RefundRequest body) {
+    return service.refund(merchant, body.paymentId());
+  }
 }

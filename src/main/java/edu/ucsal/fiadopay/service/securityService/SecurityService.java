@@ -1,4 +1,4 @@
-package edu.ucsal.fiadopay.service;
+package edu.ucsal.fiadopay.service.securityService;
 
 
 import edu.ucsal.fiadopay.domain.user.User;

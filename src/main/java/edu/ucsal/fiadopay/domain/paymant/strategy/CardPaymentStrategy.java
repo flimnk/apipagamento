@@ -2,7 +2,7 @@ package edu.ucsal.fiadopay.domain.paymant.strategy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.ucsal.fiadopay.controller.annotations.paymentMethod.PaymentMethod;
+import edu.ucsal.fiadopay.annotations.paymentMethod.PaymentMethod;
 import edu.ucsal.fiadopay.domain.merchant.Merchant;
 import edu.ucsal.fiadopay.domain.paymant.MethodPayment;
 import edu.ucsal.fiadopay.domain.paymant.Payment;
